@@ -7,6 +7,7 @@ CREATE TABLE "mails" (
     "subject" VARCHAR(988) NOT NULL,
     "text" TEXT NOT NULL,
     "status" delivery_status NOT NULL,
+    "retries" INTEGER NOT NULL DEFAULT 0,
     "created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
