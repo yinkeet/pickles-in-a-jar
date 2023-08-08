@@ -15,6 +15,17 @@ services:
             db:
                 condition: service_healthy
 
+    test-server:
+        build: node
+        volumes:
+            - ./node/server:/app
+        env_file:
+            - .env
+        entrypoint: run test
+        depends_on:
+            db:
+                condition: service_healthy
+
     safemode:
         build: node
         ports:
