@@ -21,7 +21,7 @@ type InsertResults = {
 }
 
 export async function saveEmail(email: Email) {
-    logger.info(email);
+    logger.debug(email);
     const { from, to, subject, text } = email
 
     const client = await createDbConnection();
@@ -30,7 +30,7 @@ export async function saveEmail(email: Email) {
             text: `INSERT INTO "mails" ("from", "to", "subject", "text") VALUES ($1, $2, $3, $4) RETURNING "id"`,
             values: [from, to, subject, text],
         });
-        logger.info('Saved to DB');
+        logger.debug('Saved to DB');
         return rows[0].id;
     } catch (error: any) {
         const inspectedError = util.inspect(error);

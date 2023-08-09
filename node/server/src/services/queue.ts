@@ -12,5 +12,5 @@ const emailQueue = new Queue('email', {
 
 export async function queueEmail(id: string, email: Email) {
     emailQueue.add({ id, ...email });
-    logger.info('Queued');
+    logger.debug('Queued');
 };
