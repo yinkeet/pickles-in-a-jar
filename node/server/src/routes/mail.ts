@@ -31,7 +31,7 @@ eventEmitter.on('post_email', async (email: Email) => {
 router.get('/api/v1/emails', async (req: Request, res: Response) => {
     const client = await createDbConnection();
     try {
-        const { rows: results } = await client.query(`SELECT * FROM mails`)
+        const { rows: results } = await client.query(`SELECT a.id, a.from, a.to, a.subject, a.text, a.status, b.response::text, a.created_at, b.created_at AS updated_at FROM mails a JOIN mails_responses b ON a.id=b.id`)
         return res.json({
             'results': results
         })
