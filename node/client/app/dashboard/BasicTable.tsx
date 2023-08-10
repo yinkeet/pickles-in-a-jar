@@ -2,17 +2,22 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useTable, Column } from 'react-table';
 import axios from 'axios';
 
+type Props = {
+    refreshCount: number
+}
+
 interface Data {
     id: string,
     from: string,
     to: string[],
     subject: string,
     text: string,
+    response: JSON,
     created_at: string,
     updated_at: string
 }
 
-const BasicTable = () => {
+const BasicTable = ({ refreshCount }: Props) => {
     const columns = useMemo<Column<Data>[]>(() => [
         {
             Header: 'ID',
@@ -33,6 +38,10 @@ const BasicTable = () => {
         {
             Header: 'Text',
             accessor: 'text',
+        },
+        {
+            Header: 'Response',
+            accessor: 'response',
         },
         {
             Header: 'Created At',
@@ -56,7 +65,7 @@ const BasicTable = () => {
                 console.log(error);
             }
         })();
-    }, []);
+    }, [refreshCount]);
 
     // Use the useTable Hook to send the columns and data to build the table
     const {
