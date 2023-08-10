@@ -14,6 +14,7 @@ services:
         build: node
         ports:
             - "9000:9000"
+            - "9001:9001"
         volumes:
             - ./node/server:/app
         env_file:
@@ -30,7 +31,7 @@ services:
     worker:
         build: node
         ports:
-            - "9001:9000"
+            - "9002:9000"
         volumes:
             - ./node/worker:/app
         env_file:
