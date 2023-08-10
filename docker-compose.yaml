@@ -17,6 +17,21 @@ services:
             queue:
                 condition: service_healthy
 
+    worker:
+        build: node
+        ports:
+            - "9001:9000"
+        volumes:
+            - ./node/worker:/app
+        env_file:
+            - .env
+        entrypoint: run dev
+        depends_on:
+            db:
+                condition: service_healthy
+            queue:
+                condition: service_healthy
+
     test-server:
         build: node
         volumes:
@@ -34,6 +49,7 @@ services:
             - "9000:9000"
         volumes:
             - ./node/server:/node/server
+            - ./node/worker:/node/worker
         env_file:
             - .env
         entrypoint: tail -f /dev/null
