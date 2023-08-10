@@ -1,6 +1,7 @@
 "use client";
 
-import axios from 'axios';
+import { useEffect, useState } from 'react';
+import axios, { AxiosError } from 'axios';
 import { logout } from '@/redux/features/authSlice';
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { useRouter } from 'next/navigation';
@@ -27,11 +28,46 @@ const Dashboard = () => {
         logoutAction();
     }
 
+    const [terminal, setTerminal] = useState<string[]>([]);
+
+    useEffect(() => {
+        // Create the WebSocket connection
+        const ws = new WebSocket('ws://localhost:9001');
+
+        // Set up event listeners for the WebSocket connection
+        ws.onopen = () => {
+            console.log('WebSocket connection opened');
+        };
+
+        ws.onmessage = (event) => {
+            console.log(`Server says: ${event.data}`);
+            setTerminal(oldTerminal => [...oldTerminal, event.data]);
+        };
+
+        ws.onclose = () => {
+            console.log('WebSocket connection closed');
+        };
+
+        // Clean up the WebSocket connection when the component unmounts
+        return () => {
+            ws.close();
+        };
+    }, []);
+
+    const [refreshCount, setRefreshCount] = useState(0);
+
+    const handleRefreshClick = () => {
+        setRefreshCount(refreshCount + 1);
+    };
+
     return (
         <div className="flex flex-col h-screen">
-            <div className="flex justify-between bg-gray-900 p-4">
+            <div className="flex justify-between bg-gray-900 p-4 h-[70px]">
                 <h1 className="text-2xl font-bold text-white">Dashboard - Welcome {username}</h1>
                 <div>
+                    <button className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded mx-4" onClick={handleRefreshClick}>
+                        Refresh Table
+                    </button>
                     <button className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded" onClick={handleLogout}>
                         Logout
                     </button>
@@ -39,19 +75,18 @@ const Dashboard = () => {
             </div>
 
             {/* Content */}
-            <div className="flex-grow bg-gray-100 flex">
-                <div className="w-1/2 bg-gray-200 p-4 overflow-x-auto">
-                    <BasicTable />
+            <div className="flex-grow bg-gray-100 flex h-[calc(100vh-70px)]">
+                <div className="w-1/2 bg-gray-200 p-4 overflow-auto">
+                    <BasicTable refreshCount={refreshCount}/>
                 </div>
-                <div className="flex-grow bg-white p-4">
+                <div className="w-1/2 bg-white p-4 overflow-x-auto">
                     <div className="bg-black text-green-400 p-4 rounded-lg shadow-md">
-                    <pre className="whitespace-pre-wrap text-sm font-mono">
-                        <span className="text-yellow-400">user@website:</span><span className="text-blue-300">~$</span> ls -l
-                        <span className="text-white">total 16</span>
-                        <span className="text-white">drwxr-xr-x 2 user user 4096 Aug 10 10:00 Documents</span>
-                        <span className="text-white">drwxr-xr-x 3 user user 4096 Aug 10 11:30 Downloads</span>
-                        <span className="text-white">-rw-r--r-- 1 user user    0 Aug 10 09:45 File.txt</span>
-                        <span className="text-white">drwxr-xr-x 2 user user 4096 Aug 10 09:00 Pictures</span>
+                    <pre className="whitespace-pre-wrap text-sm font-mono text-white">
+                        {terminal.map((item, index) => (
+                            <span className='inline-block'>
+                                {item}
+                            </span>
+                        ))}
                     </pre>
                     </div>
                 </div>
