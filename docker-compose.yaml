@@ -1,5 +1,15 @@
 version: '3.8'
 services:
+    client:
+        build: node
+        ports:
+            - "3000:3000"
+        volumes:
+            - ./node/client:/app
+        env_file:
+            - .env
+        entrypoint: run dev
+
     server:
         build: node
         ports:
@@ -48,8 +58,10 @@ services:
         ports:
             - "9000:9000"
         volumes:
+            - ./node/client:/node/client
             - ./node/server:/node/server
             - ./node/worker:/node/worker
+        working_dir: /node
         env_file:
             - .env
         entrypoint: tail -f /dev/null
