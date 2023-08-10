@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
 import { logger } from "./services/logger";
 import { router as mailRoute } from './routes/mail';
 import { router as authRoute } from './routes/auth';
