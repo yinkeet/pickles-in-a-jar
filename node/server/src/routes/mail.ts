@@ -6,6 +6,7 @@ import { Email, EmailSchema } from '../schema/email';
 import { logger } from '../services/logger';
 import { createDbConnection } from './../services/db';
 import util from 'util';
+import { authenticateMiddleware } from '../services/auth';
 
 export const router = express.Router();
 const eventEmitter = new events.EventEmitter();
@@ -28,7 +29,7 @@ eventEmitter.on('post_email', async (email: Email) => {
     await queueEmail(id!, email);
 });
 
-router.get('/api/v1/emails', async (req: Request, res: Response) => {
+router.get('/api/v1/emails', authenticateMiddleware, async (req: Request, res: Response) => {
     const client = await createDbConnection();
     try {
         const { rows: results } = await client.query(`SELECT a.id, a.from, a.to, a.subject, a.text, a.status, b.response::text, a.created_at, b.created_at AS updated_at FROM mails a JOIN mails_responses b ON a.id=b.id`)
