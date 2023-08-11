@@ -3,33 +3,57 @@ import passport from "passport";
 import LocalStrategy from 'passport-local';
 import bcrypt from 'bcrypt';
 import { User } from "../schema/user";
-
-// User object to simulate a database
-const users: Array<User> = [
-    { id: '1', username: 'user1', password: '$2b$10$ryDinNiIOuOpV9U6BPLZD.Fi2Zq2ifKb2WCMDvCv8TYvONw2HBEDm' }, // password: secret1
-    { id: '2', username: 'user2', password: '$2b$10$Ma/EenUzNZj3QELvXbGrj.kRXF98R0auLVhCsHhrO7eWf1wQrLoZi' }, // password: secret2
-];
+import { createDbConnection } from './db';
+import { logger } from './logger';
+import util from 'util';
 
 // Serialize and deserialize user for session management
 passport.serializeUser((user: any, done) => {
     done(null, user.id);
 });
 
-passport.deserializeUser((id, done) => {
-    const user = users.find((user) => user.id === id);
-    done(null, user);
+passport.deserializeUser(async (id, done) => {
+    const client = await createDbConnection();
+        try {
+            const { rows: results } = await client.query<User>({
+                text: `SELECT id, username, password FROM users WHERE id=$1`,
+                values: [id],
+            });
+            if (!results.length) return done(null, false);
+            const [ user ] = results;
+            done(null, user);
+        } catch (e) {
+            const error = util.inspect(e);
+            logger.error(error);
+            return done(e, false)
+        } finally {
+            client.release();
+        }
 });
 
 // Local strategy setup
 passport.use(
-    new LocalStrategy.Strategy((username, password, done) => {
-        const user = users.find((user) => user.username === username);
-        if (!user) return done(null, false);
-        bcrypt.compare(password, user.password, (err, result) => {
-            if (err) return done(err);
-            if (!result) return done(null, false);
-            return done(null, user);
-        });
+    new LocalStrategy.Strategy(async (username, password, done) => {
+        const client = await createDbConnection();
+        try {
+            const { rows: results } = await client.query<User>({
+                text: `SELECT id, username, password FROM users WHERE username=$1`,
+                values: [username],
+            });
+            if (!results.length) return done(null, false);
+            const [ user ] = results;
+            bcrypt.compare(password, user.password, (err, result) => {
+                if (err) return done(err);
+                if (!result) return done(null, false);
+                return done(null, user);
+            });
+        } catch (e) {
+            const error = util.inspect(e);
+            logger.error(error);
+            return done(e)
+        } finally {
+            client.release();
+        }
     })
 );
 
