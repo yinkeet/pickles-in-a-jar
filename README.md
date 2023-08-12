@@ -1,6 +1,6 @@
 # pickles-in-a-jar
 
-An fire and forget email service that is written in NodeJS
+A fire and forget email service that is written in NodeJS
 
 ## Requirements
 
@@ -22,7 +22,18 @@ An fire and forget email service that is written in NodeJS
    username: user2
    password: secret2
    ```
-5. Stop the service by pressing Ctrl+C and run this command to bring down the service.
+4. Open up another terminal then use this command to start queueing mails.
+    ```bash
+    curl --location 'http://localhost:9000/api/v1/email' \
+    --header 'Content-Type: application/json' \
+    --data-raw '{
+        "from": "abc123@gmail.com",
+        "to": ["xyz123@gmail.com"],
+        "subject": "subject",
+        "text": "lorem"
+    }'
+    ```
+6. Stop the service by pressing Ctrl+C and run this command to bring down the service.
    ```bash
    docker compose down
    ```
