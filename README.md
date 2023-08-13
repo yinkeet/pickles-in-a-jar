@@ -6,6 +6,12 @@ A fire and forget email service that is written in NodeJS
 
 - Docker and Docker Compose
 
+## WIP
+
+- More tests needed (Lack of tests due to time constraints)
+- Real time email status could be logged into DB to preserve the history
+- Get list of emails section could be paginated to improve loading speeds when table gets huge (Pagination was not added due to time constraints)
+
 ## Getting Started
 
 1. Copy and rename the **.env.example** file to **.env** which is located in the **base folder**.
